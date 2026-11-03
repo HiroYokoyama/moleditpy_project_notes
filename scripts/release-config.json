@@ -1,0 +1,5 @@
+{
+  "source": "project_notes.py",
+  "title": "Project Notes",
+  "assets": ["project_notes.py", "README.md", "LICENSE", "COPYING", "LICENSING.md"]
+}

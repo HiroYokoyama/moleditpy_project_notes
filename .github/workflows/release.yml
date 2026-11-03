@@ -1,0 +1,39 @@
+# Adapted from moleditpy-plugin-template's single-file release workflow.
+name: Release
+on:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      QT_QPA_PLATFORM: offscreen
+      MOLEDITPY_HEADLESS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Resolve and verify version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          python scripts/release_common.py verify --version "$VERSION"
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1 libxkbcommon-x11-0
+          python -m pip install PySide6-Essentials pytest pytest-cov ruff
+      - name: Clone MoleditPy for API compatibility checks
+        run: git clone --depth 1 https://github.com/HiroYokoyama/python_molecular_editor.git ../python_molecular_editor
+      - name: Validate release
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+          python -m pytest -q --cov=project_notes --cov-report=term-missing --cov-fail-under=90
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/release_common.py publish --version "$VERSION"
