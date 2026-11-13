@@ -40,4 +40,4 @@ jobs:
       - name: Test
         run: python -m pytest -v --cov=project_notes --cov-report=term-missing --cov-fail-under=90
       - name: Validate release metadata
-        run: python scripts/release_common.py verify --version 0.1.1
+        run: python scripts/release_common.py verify --version 1.0.0
